@@ -1,12 +1,6 @@
-/* ============================================================
-   app.js — Общий JS для предметных страниц
-   Поиск, переключение режимов, тест, тема
-   ============================================================ */
 
-/**
- * Склонение слова «вопрос» по числу
- * pluralize(1) → "вопрос", pluralize(3) → "вопроса", pluralize(5) → "вопросов"
- */
+
+
 function pluralize(n) {
   if (n % 10 === 1 && n % 100 !== 11) return 'вопрос';
   if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'вопроса';
@@ -14,9 +8,7 @@ function pluralize(n) {
 }
 
 
-/* =========================
-   ПОИСК И РЕЖИМЫ
-   ========================= */
+
 
 var mode = 'orig';
 
@@ -47,11 +39,7 @@ var srch = document.getElementById('srch');
 var nores = document.getElementById('nores');
 var cnt = document.getElementById('cnt');
 
-/**
- * Поиск по тексту вопросов и вариантов ответов.
- * Оптимизировано: ищем по data-q и текстовому содержимому .ot,
- * не по innerHTML (который может содержать base64-картинки).
- */
+
 function doSearch() {
   var q = srch.value.trim().toLowerCase();
   var el = document.getElementById(mode === 'orig' ? 'lo' : 'la');
@@ -75,7 +63,6 @@ function doSearch() {
     if (ok) vis++;
   });
 
-  // Показ/скрытие «ничего не найдено»
   if (q && vis === 0) {
     nores.style.display = 'block';
     nores.classList.add('visible');
@@ -92,19 +79,15 @@ function doSearch() {
 srch.addEventListener('input', doSearch);
 
 
-/* =========================
-   ТЕСТ-РЕЖИМ
-   ========================= */
+
 
 (function() {
   var questions = [];
   var current = 0;
-  var answers = {}; // idx → { chosen, correct, right }
+  var answers = {};
   var LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
 
-  /**
-   * Собирает вопросы из HTML-карточек в контейнере #lo
-   */
+  
   function collectQuestions() {
     var cards = document.querySelectorAll('#lo .qc');
     var qs = [];
@@ -132,9 +115,7 @@ srch.addEventListener('input', doSearch);
     return qs;
   }
 
-  /**
-   * Открывает режим тестирования
-   */
+  
   function openTest() {
     questions = collectQuestions();
     answers = {};
@@ -149,18 +130,14 @@ srch.addEventListener('input', doSearch);
   }
   window.openTest = openTest;
 
-  /**
-   * Закрывает режим тестирования
-   */
+  
   function closeTest() {
     document.getElementById('test-overlay').classList.remove('active');
     document.body.style.overflow = '';
   }
   window.closeTest = closeTest;
 
-  /**
-   * Рендерит текущий вопрос теста
-   */
+  
   function renderQ() {
     if (current >= questions.length) {
       showResults();
@@ -180,7 +157,6 @@ srch.addEventListener('input', doSearch);
     document.getElementById('tov-score').textContent =
       answeredCount ? '✓ ' + correctCount + ' из ' + answeredCount : '';
 
-    // Генерация вариантов ответов
     var optsHtml = '';
     q.variants.forEach(function(v, i) {
       var cls = 'tov-opt';
@@ -197,7 +173,6 @@ srch.addEventListener('input', doSearch);
         '</button>';
     });
 
-    // Фидбэк
     var feedback = '';
     if (ans) {
       feedback = ans.right
@@ -232,9 +207,7 @@ srch.addEventListener('input', doSearch);
     document.getElementById('test-overlay').scrollTop = 0;
   }
 
-  /**
-   * Рендерит точки навигации (показывает ±2 от текущей + первую/последнюю)
-   */
+  
   function renderDots() {
     var total = questions.length;
     var html = '';
@@ -271,9 +244,7 @@ srch.addEventListener('input', doSearch);
     return html;
   }
 
-  /**
-   * Обработка выбора ответа
-   */
+  
   function chooseAnswer(idx) {
     if (answers[current] && answers[current].right) return;
 
@@ -282,7 +253,6 @@ srch.addEventListener('input', doSearch);
     answers[current] = { chosen: idx, correct: q.correct, right: right };
     renderQ();
 
-    // Автопереход к следующему вопросу при правильном ответе
     if (right && current < questions.length - 1) {
       setTimeout(function() { goQ(1); }, 900);
     }
@@ -299,9 +269,7 @@ srch.addEventListener('input', doSearch);
   }
   window.jumpQ = jumpQ;
 
-  /**
-   * Показывает экран результатов
-   */
+  
   function showResults() {
     var correctCount = Object.values(answers).filter(function(a) { return a.right; }).length;
     var total = questions.length;
@@ -335,9 +303,7 @@ srch.addEventListener('input', doSearch);
   }
   window.showResults = showResults;
 
-  /**
-   * Режим разбора ошибок — показывает только неверно отвеченные вопросы
-   */
+  
   function reviewErrors() {
     var wrong = Object.entries(answers)
       .filter(function(e) { return !e[1].right; })
@@ -359,7 +325,6 @@ srch.addEventListener('input', doSearch);
   }
   window.reviewErrors = reviewErrors;
 
-  // Добавляем кнопку теста в навбар
   document.addEventListener('DOMContentLoaded', function() {
     var bar = document.querySelector('.bar');
     if (bar) {
@@ -373,9 +338,7 @@ srch.addEventListener('input', doSearch);
 })();
 
 
-/* =========================
-   ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
-   ========================= */
+
 
 (function() {
   function applyTheme(theme) {
